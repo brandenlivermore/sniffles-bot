@@ -17,7 +17,13 @@ async def on_member_update(before, after):
 @bot.command()
 async def price(query: str):
 	results = ge.items(query)
-	await bot.say(results[0].name)
+	
+	text = ''
+	
+	for result in results:
+		text += '{name}: {price}, today\'s change: {change}, alch price: {alch_price}\n'.format(name=result.name, price=human_format(result.price), change=human_format(result.change), alch_price=human_format(result.alch_price))
+
+	await bot.say(text)
 
 
 bot.run('NDE4Njc4NjU4MTkwODAyOTQ0.DXlEow.Tm9Ru4-GKH2-X1rkA9p__8uZ8ls')
