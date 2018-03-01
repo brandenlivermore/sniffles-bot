@@ -15,7 +15,7 @@ async def on_member_update(before, after):
 	await bot.send_message(channel, message) 
 """	
 @bot.command()
-async def price(query: str):
+async def price(*, query: str):
 	results = ge.items(query)
 	
 	text = ''
