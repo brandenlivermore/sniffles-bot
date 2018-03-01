@@ -9,22 +9,15 @@ ge = grand_exchange.GrandExchange()
 @bot.event
 async def on_ready():
 	await bot.change_presence(game=discord.Game(name='cat'))
-
+"""
 @bot.event
 async def on_member_update(before, after):
 	await bot.send_message(channel, message) 
-	
+"""	
 @bot.command()
 async def price(query: str):
 	results = ge.items(query)
 	await bot.say(results[0].name)
 
-# @client.event
-# async def on_member_join(member):
-# 	print('member join')
 
-
-
-
-
-client.run('NDE4Njc4NjU4MTkwODAyOTQ0.DXlEow.Tm9Ru4-GKH2-X1rkA9p__8uZ8ls')
+bot.run('NDE4Njc4NjU4MTkwODAyOTQ0.DXlEow.Tm9Ru4-GKH2-X1rkA9p__8uZ8ls')
