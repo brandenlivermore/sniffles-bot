@@ -1,10 +1,10 @@
 import discord
 from pprint import pprint
 from discord.ext import commands
-import grand_exchange
+from grand_exchange import GrandExchange, human_format
 
 bot = commands.Bot(command_prefix='.', description='BigBoyBot D: :P')
-ge = grand_exchange.GrandExchange()
+ge = GrandExchange()
 
 @bot.event
 async def on_ready():
