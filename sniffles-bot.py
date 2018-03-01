@@ -4,7 +4,7 @@ from discord.ext import commands
 import grand_exchange
 
 bot_client = commands.Bot(command_prefix='!', description='BigBoyBot D: :P')
-ge = GrandExchange()
+ge = grand_exchange.GrandExchange()
 
 @client.event
 async def on_ready():
