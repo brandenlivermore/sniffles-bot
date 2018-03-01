@@ -3,21 +3,21 @@ from pprint import pprint
 from discord.ext import commands
 import grand_exchange
 
-client = commands.Bot(command_prefix='!', description='BigBoyBot D: :P')
+bot = commands.Bot(command_prefix='!', description='BigBoyBot D: :P')
 ge = grand_exchange.GrandExchange()
 
-@client.event
+@bot.event
 async def on_ready():
-	await bot_client.change_presence(game=discord.Game(name='cat'))
+	await bot.change_presence(game=discord.Game(name='cat'))
 
-@client.event
+@bot.event
 async def on_member_update(before, after):
-	await bot_client.send_message(channel, message) 
+	await bot.send_message(channel, message) 
 	
-@client.command()
+@bot.command()
 async def price(query: str):
 	results = ge.items(query)
-	await bot_client.say(results[0].name)
+	await bot.say(results[0].name)
 
 # @client.event
 # async def on_member_join(member):

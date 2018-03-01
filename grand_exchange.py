@@ -153,10 +153,4 @@ class GrandExchange (object):
 		self.item_names = item_names
 		self.item_mapping = item_mapping	
 		
-ge = GrandExchange()
-
-items = ge.items('abysal whip')
-
-for item in items:
-	item.log()
 	
