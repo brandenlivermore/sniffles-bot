@@ -3,7 +3,7 @@ from pprint import pprint
 from discord.ext import commands
 import grand_exchange
 
-bot_client = commands.Bot(command_prefix='!', description='BigBoyBot D: :P')
+client = commands.Bot(command_prefix='!', description='BigBoyBot D: :P')
 ge = grand_exchange.GrandExchange()
 
 @client.event
