@@ -1,5 +1,4 @@
 import discord
-import twitter_api
 from pprint import pprint
 from discord.ext import commands
 import grand_exchange
