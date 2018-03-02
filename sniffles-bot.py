@@ -22,7 +22,10 @@ async def price(*, query: str):
 	
 	for result in results:
 		text += '{name}: {price}, today\'s change: {change}, alch price: {alch_price}\n'.format(name=result.name, price=human_format(result.price), change=human_format(result.change), alch_price=human_format(result.alch_price))
-
+	
+	if results is empty:
+		text = 'nothing found for that shit'
+	
 	await bot.say(text)
 
 
