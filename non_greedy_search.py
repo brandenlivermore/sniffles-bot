@@ -14,7 +14,7 @@ def non_greedy_search(item, query):
 	score = 0
 	
 	correct_in_a_row = 0
-	
+	matched_first_char = False 
 	prev_was_space = False
 	while query_index < query_len and item_index < item_len:
 		query_char = query[query_index]
@@ -34,9 +34,12 @@ def non_greedy_search(item, query):
 			correct_in_a_row += 1
 			if item_index == 0:
 				# print('zero index bonus')
+				matched_first_char = True
 				score += 5
 			elif prev_was_space:
 				# print('prev space bonus')
+				if matched_first_char:
+					score += 5
 				score += 5
 		else:
 			correct_in_a_row = 0
