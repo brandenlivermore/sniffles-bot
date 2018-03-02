@@ -78,7 +78,7 @@ class GrandExchange (object):
 		names_scores = []
 		for name in self.item_names:
 			score = non_greedy_search(name, query)
-			if score >= 20:	
+			if score >= 25:	
 				names_scores.append((score, name))
 		
 		names_scores = sorted(names_scores, key=lambda score_name: score_name[0])
