@@ -48,4 +48,7 @@ def non_greedy_search(item, query):
 		
 		item_index += 1
 	
-	return score
+	if query_index < query_len - 1:
+		return 0
+	else:
+		return score
