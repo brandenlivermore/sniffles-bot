@@ -74,6 +74,7 @@ class GrandExchange (object):
 		return url
 	
 	def match_names(self, query):
+		query = query.lower()
 		exact_match = self.item_mapping[query]
 		if exact_match is not None:
 			print('exact match')
