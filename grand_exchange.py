@@ -74,6 +74,11 @@ class GrandExchange (object):
 		return url
 	
 	def match_names(self, query):
+		exact_match = self.item_mapping[query]
+		if exact_match is not None:
+			print('exact match')
+			return [query]
+	
 		query_results = process.extract(query, self.item_names, limit=5)
 
 		names = []
@@ -149,9 +154,9 @@ class GrandExchange (object):
 		for id, object in item_data.items():
 			name = object['name']
 			shop_price = object['sp']
-			item_names.append(name)
+			item_names.append(name.lower())
 			item = IntrinsicItemDetails(id, name, shop_price)
-			item_mapping[name] = item
+			item_mapping[name.lower()] = item
 
 		self.item_names = item_names
 		self.item_mapping = item_mapping	
