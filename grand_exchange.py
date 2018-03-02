@@ -83,7 +83,7 @@ class GrandExchange (object):
 		
 		names_scores = sorted(names_scores, key=lambda score_name: score_name[0])
 		
-		return list(map(lambda score_name: score_name[1]))
+		return list(map(lambda score_name: score_name[1], names_scores))
 				
 	
 	def match_names(self, query):
