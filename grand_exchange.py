@@ -34,6 +34,9 @@ def runescape_number_to_int(number):
 	if 'm' in number:
 		return int(float(number.replace('m', '')) * 10**6) * multiplier
 		
+	if 'b' in number:
+		return int(float(number.replace('b', '')) * 10**9) * multiplier
+		
 	return int(number) * multiplier
 
 class GrandExchangeItem (object):
