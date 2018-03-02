@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from pathlib import Path
-import non_greedy_search
+from non_greedy_search import non_greedy_search
 
 def human_format(num):
 	num = float('{:.3g}'.format(num))
