@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from pathlib import Path
+import non_greedy_search
 
 def human_format(num):
 	num = float('{:.3g}'.format(num))
@@ -73,25 +74,37 @@ class GrandExchange (object):
 		url = self.ge_base_url + self.ge_individual_item_path + str(id)
 		return url
 	
+	def non_greedy_search_results(self, query):
+		names_scores= []
+		for name in self.item_names:
+			score = non_greedy_search(item, query)
+			if score >= 20:	
+				results.append((score, name))
+		
+		names_scores = sorted(names_scores, key=lambda score_name: score_name[0])
+		
+		return list(map(lambda score_name: score_name[1]))
+				
+	
 	def match_names(self, query):
 		query = query.lower()
 		if query in self.item_mapping:
 			print('exact match')
 			return [query]
 	
-		query_results = process.extract(query, self.item_names, scorer=fuzz.partial_ratio, limit=5)
-
-		names = []
-		
-		for query_result in query_results:
-			if query_result[1] > 94:
-				return [query_result[0]]
-				
-			names.append(query_result[0])
+		names = non_greedy_search_results(query)
+		if not names:
+			query_results = process.extract(query, self.item_names, scorer=fuzz.partial_ratio, limit=5)
 			
-			if query_result[1] < 55:
-				print('{name} score less than 40'.format(name=query_result[0]))
-				break
+			for query_result in query_results:
+				if query_result[1] > 94:
+					return [query_result[0]]
+				
+				names.append(query_result[0])
+			
+				if query_result[1] < 55:
+					print('{name} score less than 40'.format(name=query_result[0]))
+					break
 		
 		return names
 			
