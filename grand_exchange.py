@@ -83,8 +83,8 @@ class GrandExchange (object):
 		
 		names_scores = sorted(names_scores, key=lambda score_name: score_name[0], reverse=True)
 		
-		#if len(names_scores) > 3:
-			#names_scores = names_scores[:3]
+		if len(names_scores) > 3:
+			names_scores = names_scores[:3]
 		
 		return list(map(lambda score_name: score_name[1], names_scores))
 				
@@ -98,7 +98,7 @@ class GrandExchange (object):
 		names = self.non_greedy_search_results(query)
 		print('names coming')
 		print(names)
-		return []
+		#return []
 		if not names:
 			query_results = process.extract(query, self.item_names, scorer=fuzz.partial_ratio, limit=5)
 			
