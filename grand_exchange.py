@@ -95,6 +95,7 @@ class GrandExchange (object):
 		names = self.non_greedy_search_results(query)
 		print('names coming')
 		print(names)
+		return []
 		if not names:
 			query_results = process.extract(query, self.item_names, scorer=fuzz.partial_ratio, limit=5)
 			
