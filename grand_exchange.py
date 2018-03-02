@@ -81,7 +81,10 @@ class GrandExchange (object):
 			if score >= 25:	
 				names_scores.append((score, name))
 		
-		names_scores = sorted(names_scores, key=lambda score_name: score_name[0])
+		names_scores = sorted(names_scores, key=lambda score_name: score_name[0], reverse=True)
+		
+		if len(names_scores) > 3:
+			names_scores = names_scores[:3]
 		
 		return list(map(lambda score_name: score_name[1], names_scores))
 				
