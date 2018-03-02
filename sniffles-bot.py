@@ -28,5 +28,4 @@ async def price(*, query: str):
 	
 	await bot.say(text)
 
-
 bot.run('NDE4Njc4NjU4MTkwODAyOTQ0.DXlEow.Tm9Ru4-GKH2-X1rkA9p__8uZ8ls')
