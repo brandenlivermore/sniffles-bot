@@ -77,7 +77,7 @@ class GrandExchange (object):
 	def non_greedy_search_results(self, query):
 		names_scores= []
 		for name in self.item_names:
-			score = non_greedy_search(item, query)
+			score = non_greedy_search(name, query)
 			if score >= 20:	
 				results.append((score, name))
 		
