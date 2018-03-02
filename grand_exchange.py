@@ -79,7 +79,7 @@ class GrandExchange (object):
 			print('exact match')
 			return [query]
 	
-		query_results = process.extract(query, self.item_names, scorer=fuzz.token_set_ratio, limit=5)
+		query_results = process.extract(query, self.item_names, scorer=fuzz.partial_ratio, limit=5)
 
 		names = []
 		
