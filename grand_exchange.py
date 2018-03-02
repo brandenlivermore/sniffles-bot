@@ -92,7 +92,7 @@ class GrandExchange (object):
 			print('exact match')
 			return [query]
 	
-		names = non_greedy_search_results(query)
+		names = non_greedy_search(query)
 		if not names:
 			query_results = process.extract(query, self.item_names, scorer=fuzz.partial_ratio, limit=5)
 			
