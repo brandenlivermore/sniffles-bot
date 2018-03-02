@@ -30,7 +30,7 @@ def non_greedy_search(item, query):
 			# print('match on {query} {item}'.format(query=query_char, item=item_char))
 			query_index += 1
 			score += 5
-			score += correct_in_a_row * 2
+			score += correct_in_a_row * 4
 			correct_in_a_row += 1
 			if item_index == 0:
 				# print('zero index bonus')
