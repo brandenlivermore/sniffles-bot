@@ -10,7 +10,7 @@ prod_environment = 'prod'
 environment = None
 
 def set_environment():
-	if sys.argc is not 2:
+	if len(sys.argv) is not 2:
 		sys.exit('run this script with either -dev or -prod')
 	
 	if sys.argv[1] is '-dev':
@@ -55,4 +55,4 @@ async def price(*, query: str):
 
 
 
-bot.run(token))
+bot.run(token)
