@@ -15,17 +15,17 @@ def set_environment():
 	
 	global environment
 	
-	if sys.argv[1] is '-dev':
+	if sys.argv[1] == '-dev':
 		environment = dev_environment
-	elif sys.argv[1] is '-prod':
+	elif sys.argv[1] == '-prod':
 		environment = prod_environment
 	
 	if environment is None:
 		sys.exit('you didn\'t specify -dev or -prod')
 		
-	if environment is prod_environment:
+	if environment == prod_environment:
 		token = 'NDE4Njc4NjU4MTkwODAyOTQ0.DXlEow.Tm9Ru4-GKH2-X1rkA9p__8uZ8ls'
-	elif environment is dev_environment:
+	elif environment == dev_environment:
 		token = 'NDE5Nzc3MDA3NjU2NjMyMzIw.DX-8GQ.GHoW5mMaIGLkWGXyQgJ637Hq99c'
 
 
