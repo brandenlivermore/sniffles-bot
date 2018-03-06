@@ -27,6 +27,13 @@ def set_environment():
 		token = 'NDE5Nzc3MDA3NjU2NjMyMzIw.DX-8GQ.GHoW5mMaIGLkWGXyQgJ637Hq99c'
 
 
+
+set_environment()
+
+bot = commands.Bot(command_prefix='.', description='BigBoyBot D: :P')
+ge = GrandExchange()
+
+
 @bot.event
 async def on_ready():
 	await bot.change_presence(game=discord.Game(name='cat'))
@@ -47,10 +54,5 @@ async def price(*, query: str):
 	await bot.say(text)
 
 
-set_environment()
 
-bot = commands.Bot(command_prefix='.', description='BigBoyBot D: :P')
-ge = GrandExchange()
-
-
-bot.run()
+bot.run(token))
