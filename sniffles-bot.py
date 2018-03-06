@@ -2,18 +2,36 @@ import discord
 from pprint import pprint
 from discord.ext import commands
 from grand_exchange import GrandExchange, human_format
+import sys
 
-bot = commands.Bot(command_prefix='.', description='BigBoyBot D: :P')
-ge = GrandExchange()
+dev_environment = 'dev'
+prod_environment = 'prod'
+
+environment = None
+
+def set_environment():
+	if sys.argc is not 2:
+		sys.exit('run this script with either -dev or -prod')
+	
+	if sys.argv[1] is '-dev':
+		environment = dev_environment
+	elif sys.argv[1] is '-prod':
+		environment = prod_environment
+	
+	if environment is None:
+		sys.exit('you didn\'t specify -dev or -prod')
+		
+	if environment is prod_environment:
+		token = 'NDE4Njc4NjU4MTkwODAyOTQ0.DXlEow.Tm9Ru4-GKH2-X1rkA9p__8uZ8ls'
+	elif environment is dev_environment:
+		token = 'NDE5Nzc3MDA3NjU2NjMyMzIw.DX-8GQ.GHoW5mMaIGLkWGXyQgJ637Hq99c'
+
 
 @bot.event
 async def on_ready():
 	await bot.change_presence(game=discord.Game(name='cat'))
-"""
-@bot.event
-async def on_member_update(before, after):
-	await bot.send_message(channel, message) 
-"""	
+
+
 @bot.command()
 async def price(*, query: str):
 	results = ge.items(query)
@@ -28,4 +46,11 @@ async def price(*, query: str):
 	
 	await bot.say(text)
 
-bot.run('NDE4Njc4NjU4MTkwODAyOTQ0.DXlEow.Tm9Ru4-GKH2-X1rkA9p__8uZ8ls')
+
+set_environment()
+
+bot = commands.Bot(command_prefix='.', description='BigBoyBot D: :P')
+ge = GrandExchange()
+
+
+bot.run()
