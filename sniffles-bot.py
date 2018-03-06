@@ -13,6 +13,8 @@ def set_environment():
 	if len(sys.argv) is not 2:
 		sys.exit('run this script with either -dev or -prod')
 	
+	global environment
+	
 	if sys.argv[1] is '-dev':
 		environment = dev_environment
 	elif sys.argv[1] is '-prod':
