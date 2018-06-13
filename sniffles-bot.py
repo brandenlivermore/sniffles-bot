@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from grandexchange import GrandExchange
 from numberformatter import human_format
-from highscores import db
 import sys
 import re
 
