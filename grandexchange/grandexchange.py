@@ -9,9 +9,9 @@ from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from pathlib import Path
 from non_greedy_search import non_greedy_search
-from grandexchange.runelite.runelite import RuneLite
-from grandexchange.jagex.jagexge import JagexGrandExchange
-from grandexchange.runescapeitem import RunescapeItem
+from .runelite import RuneLite, RuneLiteItem
+from . import jagex
+from .runescapeitem import RunescapeItem
 
 
 class GrandExchange(object):
@@ -19,7 +19,7 @@ class GrandExchange(object):
         self.file_path = 'data.json'
         self.all_items_url = 'https://rsbuddy.com/exchange/summary.json'
         self.setup()
-        self.jagex_grand_exchange = JagexGrandExchange(self.item_mapping)
+        self.jagex_grand_exchange = jagex.GrandExchange(self.item_mapping)
         self.runelite = RuneLite()
 
     def non_greedy_search_results(self, query):

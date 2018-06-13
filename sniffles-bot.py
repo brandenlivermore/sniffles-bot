@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from grandexchange.grandexchange import GrandExchange
+from grandexchange import GrandExchange
 from numberformatter import human_format
 from highscores import db
 import sys

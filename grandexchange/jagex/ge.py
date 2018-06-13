@@ -1,7 +1,7 @@
 from grandexchange.grandexchangeitem import GrandExchangeItem
 
 
-class JagexGrandExchange(object):
+class GrandExchange(object):
     def __init__(self, item_mapping):
         self.ge_base_url = 'http://services.runescape.com/m=itemdb_oldschool'
         self.ge_individual_item_path = '/api/catalogue/detail.json?item='
