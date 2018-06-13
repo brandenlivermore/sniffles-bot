@@ -1,4 +1,4 @@
-from grandexchange.grandexchangeitem import GrandExchangeItem
+from .grandexchangeitem import GrandExchangeItem
 
 
 class GrandExchange(object):
