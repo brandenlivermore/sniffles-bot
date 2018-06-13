@@ -21,23 +21,19 @@ def non_greedy_search(item, query):
 		item_char = item[item_index]
 	
 		if item_char == ' ':
-			# print('prev was space')
 			prev_was_space = True
 			item_index += 1
 			continue
 		
 		if query_char == item_char:
-			# print('match on {query} {item}'.format(query=query_char, item=item_char))
 			query_index += 1
 			score += 5
 			score += correct_in_a_row * 4
 			correct_in_a_row += 1
 			if item_index == 0:
-				# print('zero index bonus')
 				matched_first_char = True
 				score += 5
 			elif prev_was_space:
-				# print('prev space bonus')
 				if matched_first_char:
 					score += 5
 				score += 5
