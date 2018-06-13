@@ -61,9 +61,7 @@ async def price(*, query: str):
 
     if length == 0:
         title = 'nothing found for that shit'
-    elif length == 1:
-        title = results[0].name
-    else:
+    elif length != 1:
         title = "{count} results".format(count=length)
 
     embed = discord.Embed(title=title)
