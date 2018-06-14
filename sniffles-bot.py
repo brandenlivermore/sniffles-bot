@@ -58,14 +58,18 @@ async def price(*, query: str):
     length = len(results)
 
     title = None
+    icon = None
 
     if length == 0:
         title = 'nothing found for that shit'
     elif length != 1:
         title = "{count} results".format(count=length)
 
-    embed = discord.Embed(title=title)
+    if length == 1:
+        icon = results[0].icon
 
+    embed = discord.Embed(title=title)
+    embed.set_thumbnail(url=icon)
     for result in results:
         embed.add_field(name=result.name,
                         value='`{price}`, change: `{change}`, alch: `{alch_price}`\n'.format(name=result.name,

@@ -1,6 +1,5 @@
 from .grandexchangeitem import GrandExchangeItem
 
-
 class GrandExchange(object):
     def __init__(self, item_mapping):
         self.ge_base_url = 'http://services.runescape.com/m=itemdb_oldschool'
@@ -28,4 +27,5 @@ class GrandExchange(object):
         json = jagex_detail_json['item']
         price = runelite_item.price
         change = json['today']['price']
-        return GrandExchangeItem(jagex_item, price, change)
+        icon = json['icon_large']
+        return GrandExchangeItem(jagex_item, price, change, icon)

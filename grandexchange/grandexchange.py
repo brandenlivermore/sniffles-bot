@@ -115,11 +115,11 @@ class GrandExchange(object):
 
         item_names = []
         item_mapping = {}
-        for id, object in item_data.items():
-            name = object['name']
-            shop_price = object['sp']
+        for item_id, runescape_item in item_data.items():
+            name = runescape_item['name']
+            shop_price = runescape_item['sp']
             item_names.append(name.lower())
-            item = RunescapeItem(id, name, shop_price)
+            item = RunescapeItem(item_id, name, shop_price)
             item_mapping[name.lower()] = item
 
         self.item_names = item_names
