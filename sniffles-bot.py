@@ -11,7 +11,6 @@ prod_environment = 'prod'
 environment = None
 token = None
 
-
 def set_environment():
     if len(sys.argv) is not 2:
         sys.exit('run this script with either -dev or -prod')
@@ -81,63 +80,5 @@ async def price(*, query: str):
                         inline=False)
 
     await bot.say(embed=embed)
-
-
-@bot.command(pass_context=True)
-async def stats(ctx):
-    id = ctx.message.author.id
-
-    full_message = ctx.message.system_content
-
-    if full_message.strip() == "!stats":
-        name = db.get_user_name(id)
-    else:
-        name = full_message.split(" ", 1)[-1]
-
-    if name is None:
-        await bot.say("you have to set your rsn with `!rsn` or specify it after the command")
-        return
-
-    result = hiscores.get_all_skills(name)
-
-    embed = highscores_to_embed.skills_result_to_embed(result)
-    await bot.say(embed=embed)
-
-
-@bot.command(pass_context=True)
-async def rsn(ctx):
-    id = ctx.message.author.id
-
-    full_message = ctx.message.system_content
-    if not " " in full_message:
-        await bot.say("benis you have to put your rsn after this")
-        return
-
-    name = full_message.split(" ", 1)[-1]
-
-    if len(name) > 12:
-        await bot.say("there's no way your name is that long, {mention}".format(mention=ctx.message.author.mention))
-        return
-
-    pattern = re.compile("[a-z|A-Z|0-9|\s]*")
-
-    mention = ctx.message.author.mention
-
-    match = pattern.match(name)
-
-    if not match.group() == name:
-        await bot.say("You can't fool Sniffles, {mention}".format(mention=mention))
-        return
-
-    result = db.set_user_name(id, name)
-
-    if result == db.SetUserNameResult.Failure:
-        await bot.say("Sniffles was unable to set your RSN, {mention}".format(mention=mention))
-    elif result == db.SetUserNameResult.FirstTime:
-        await bot.say("Sniffles now knows who you are, {mention}".format(mention=mention))
-    elif result == db.SetUserNameResult.Update:
-        await bot.say("Sniffles knows your new name, {mention}".format(mention=mention))
-    elif result == db.SetUserNameResult.Same:
-        await bot.say("Sniffles already knows that, you bitch!")
 
 bot.run(token)
