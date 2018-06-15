@@ -15,3 +15,6 @@ c.execute("""CREATE TABLE IF NOT EXISTS {table} (
                 {name_col} TEXT NOT NULL,
                 CONSTRAINT id_unique UNIQUE ({id_col})
             );""".format(table=keywords_table, id_col=id_col, name_col=item_id_col))
+
+
+
