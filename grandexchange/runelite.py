@@ -11,7 +11,7 @@ class RuneLiteItem(object):
 
 class RuneLite(object):
     def __init__(self):
-        self.runelite_url = 'https://api.runelite.net/runelite-1.4.2/item/price?'
+        self.runelite_url = 'https://api.runelite.net/runelite-1.4.4.1/item/price?'
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36'
         }
