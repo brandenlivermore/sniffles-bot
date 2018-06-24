@@ -48,9 +48,106 @@ async def on_ready():
     await bot.change_presence(game=discord.Game(name='cat'))
 
 
-@bot.command()
-async def price(*, query: str):
-    results = ge.items(query)
+@bot.group(pass_context=True)
+async def keyword(ctx):
+    if ctx.invoked_subcommand is None:
+        await bot.say(
+            'You can\'t use keyword on its own. Try `.keyword add bandos "bandos chestplate"` or `.keyword remove bandos` or `.keyword name bandos "Bandos stuff"`')
+
+
+def validate_quoted_item_name(name):
+    pattern = re.compile('"([^"]*)"')
+
+    match = pattern.match(name)
+
+    return match and match.group() == name
+
+
+@keyword.command(pass_context=True)
+async def remove(ctx, keyword: str, *, name: str):
+    user_id = ctx.message.author.id
+
+    valid_name = validate_quoted_item_name(name)
+
+    if not valid_name:
+        await bot.say('You didn\'t use this right. example: `.keyword name bullshit "bandos stuff"`')
+        return
+
+    name = name.replace('"', '')
+
+    success = ge.remove_keyword(user_id, keyword)
+
+    if success:
+        await bot.say('removed "{name}" from {keyword}'.format(keyword=keyword,
+                                                               name=name))
+    else:
+        await bot.say('"{name}" not found or keyword {keyword} doesn\'t exist'.format(keyword=keyword,
+                                                                                      name=name))
+
+
+@keyword.command(pass_context=True)
+async def delete(ctx, keyword: str):
+    user_id = ctx.message.author.id
+
+    success = ge.remove_keyword(user_id, keyword)
+
+    if success:
+        await bot.say('Successfully removed keyword {keyword}'.format(keyword=keyword))
+    else:
+        await bot.say('Could not remove unknown keyword {keyword}'.format(keyword=keyword))
+
+
+@keyword.command(pass_context=True)
+async def name(ctx, keyword: str, *, name: str):
+    user_id = ctx.message.author.id
+
+    valid_name = validate_quoted_item_name(name)
+
+    if not valid_name:
+        await bot.say('You didn\'t use this right. example: `.keyword name bullshit "bandos stuff"`')
+        return
+
+    name = name.replace('"', '')
+
+    success = ge.set_name_for_keyword(user_id, keyword, name)
+
+    if success:
+        await bot.say('keyword group {keyword} is now named "{name}"'.format(keyword=keyword,
+                                                                             name=name))
+    else:
+        await bot.say('keyword {keyword} not found'.format(keyword=keyword))
+
+
+@keyword.command(pass_context=True)
+async def add(ctx, keyword: str, *, item: str):
+    user_id = ctx.message.author.id
+    pattern = re.compile('"(\s|[a-z]|\)|\(|\d|\'){3,}"')
+
+    match = pattern.match(item)
+
+    if not match or match.group() != item:
+        await bot.say('You didn\'t use this right. example: `.keyword add bullshit "bandos godsword"`')
+        return
+
+    item = item.replace('"', '')
+
+    success, items = ge.set_keyword_for_item(user_id, keyword, item)
+
+    if not success:
+        await bot.say('unable to find "{item}"'.format(item=item))
+
+    items_str = ", ".join(items)
+
+    await bot.say('{keyword} now contains '.format(keyword=keyword) + items_str)
+
+
+@bot.command(pass_context=True)
+async def price(ctx, *, query: str):
+    # query = ctx.message.content
+    # query.replace(command_prefix + 'price', '')
+    # query = query.strip()
+    user_id = ctx.message.author.id
+    group_name, results = ge.items(user_id, query)
 
     text = ''
 
@@ -58,7 +155,9 @@ async def price(*, query: str):
 
     title = None
 
-    if length == 0:
+    if group_name is not None:
+        title = group_name
+    elif length == 0:
         title = 'nothing found for that shit'
     elif length != 1:
         title = "{count} results".format(count=length)

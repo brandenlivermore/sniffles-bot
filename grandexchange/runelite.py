@@ -17,9 +17,6 @@ class RuneLite(object):
         }
 
     def items_from_future(self, future):
-        return None
-
-    def items_from_future(self, future):
         items = []
 
         for item_json in future.result().json():

@@ -12,6 +12,7 @@ from non_greedy_search import non_greedy_search
 from .runelite import RuneLite, RuneLiteItem
 from . import jagex
 from .runescapeitem import RunescapeItem
+from db import dbconnection
 
 
 class GrandExchange(object):
@@ -19,8 +20,35 @@ class GrandExchange(object):
         self.file_path = 'data.json'
         self.all_items_url = 'https://rsbuddy.com/exchange/summary.json'
         self.setup()
-        self.jagex_grand_exchange = jagex.GrandExchange(self.item_mapping)
+        self.jagex_grand_exchange = jagex.GrandExchange()
         self.runelite = RuneLite()
+        self.dbconnection = dbconnection
+
+    def remove_keyword(self, user_id, keyword):
+        return self.dbconnection.remove_keyword(user_id, keyword)
+
+    def set_name_for_keyword(self, user_id, keyword, name):
+        return self.dbconnection.set_user_group_name(user_id, keyword, name)
+
+    def set_keyword_for_item(self, user_id, keyword, item_name):
+        item_name = item_name.lower()
+
+        if item_name not in self.name_item_mapping:
+            return False, []
+
+        # Some names have multiple items (like different colored shirts).
+        # For simplicity I'm picking the first one here.
+        item = self.name_item_mapping[item_name][0]
+
+        item_group = self.dbconnection.set_keyword_for_item(user_id, keyword, item.id)
+
+        item_names = []
+
+        for item_id in item_group.items:
+            if item_id in self.id_item_mapping:
+                item_names.append(self.id_item_mapping[item_id].name)
+
+        return True, item_names
 
     def non_greedy_search_results(self, query):
         names_scores = []
@@ -38,7 +66,7 @@ class GrandExchange(object):
 
     def match_names(self, query):
         query = query.lower()
-        if query in self.item_mapping:
+        if query in self.name_item_mapping:
             return [query]
 
         names = self.non_greedy_search_results(query)
@@ -50,31 +78,39 @@ class GrandExchange(object):
                 if query_result[1] > 94:
                     return [query_result[0]]
 
-                names.append(query_result[0])
-
                 if query_result[1] < 55:
                     break
 
+                names.append(query_result[0])
+
         return names
 
-    def single_item(self, item_name):
-        result = self.multiple_items([item_name])
-        return result
+    def item_ids_from_query(self, user_id, query):
+        if ' ' not in query:
+            group = self.dbconnection.item_group_for_keyword(user_id, query)
+            if group is not None:
+                return group.name, group.items
 
-    def items(self, query):
         item_names = self.match_names(query)
 
-        session = FuturesSession(executor=ThreadPoolExecutor(max_workers=8))
-        items = []
         item_ids = []
         for name in item_names:
-            item = self.item_mapping[name]
-
-            if item is None:
+            if name not in self.name_item_mapping:
                 continue
 
-            items.append(item)
-            item_ids.append(item.id)
+            items = self.name_item_mapping[name]
+
+            item_ids += [item.id for item in items]
+
+        return None, item_ids
+
+    def items(self, user_id, query):
+        (group_name, item_ids) = self.item_ids_from_query(user_id, query)
+
+        if len(item_ids) is 0:
+            return None, []
+
+        session = FuturesSession(executor=ThreadPoolExecutor(max_workers=8))
 
         jagex_futures = self.jagex_grand_exchange.futures_for_item_ids(session, item_ids)
 
@@ -83,13 +119,14 @@ class GrandExchange(object):
         results = []
         for index, future in enumerate(jagex_futures):
             runelite_item = runelite_items[index]
-            item = items[index]
+            item_id = item_ids[index]
+            item = self.id_item_mapping[item_id]
 
             ge_item = self.jagex_grand_exchange.ge_item_from_future(future, item, runelite_item)
 
             results.append(ge_item)
 
-        return results
+        return group_name, results
 
     def setup(self):
         file_exists = Path(self.file_path).is_file()
@@ -113,14 +150,25 @@ class GrandExchange(object):
             with open(self.file_path) as json_file:
                 item_data = json.load(json_file)
 
-        item_names = []
-        item_mapping = {}
+        item_names = set()
+        name_item_mapping = {}
+        id_item_mapping = {}
+
         for item_id, runescape_item in item_data.items():
             name = runescape_item['name']
+            name_lower = name.lower()
             shop_price = runescape_item['sp']
-            item_names.append(name.lower())
-            item = RunescapeItem(item_id, name, shop_price)
-            item_mapping[name.lower()] = item
 
-        self.item_names = item_names
-        self.item_mapping = item_mapping
+            item_names.add(name_lower)
+            item = RunescapeItem(int(item_id), name, shop_price)
+
+            if name_lower in name_item_mapping:
+                name_item_mapping[name_lower] = name_item_mapping[name_lower] + [item]
+            else:
+                name_item_mapping[name_lower] = [item]
+
+            id_item_mapping[int(item_id)] = item
+
+        self.item_names = list(item_names)
+        self.name_item_mapping = name_item_mapping
+        self.id_item_mapping = id_item_mapping
