@@ -86,7 +86,7 @@ def remove_item_from_keyword(user_id, keyword, item_id):
 
 
 def remove_keyword(user_id, keyword):
-    group_id = get_group(user_id, keyword)
+    group_id = get_group_id(user_id, keyword)
 
     if group_id is None:
         return False
@@ -104,7 +104,7 @@ def set_keyword_for_item(user_id, keyword, item_id):
 
 
 def set_user_group_name(user_id, keyword, name):
-    group_id = get_group(user_id, keyword)
+    group_id = get_group_id(user_id, keyword)
 
     if group_id is None:
         return False
@@ -147,19 +147,19 @@ def item_group_for_keyword_with_id(user_id, keyword):
 
 
 def get_or_create_user_group(user_id, keyword):
-    return get_group(user_id, keyword) or create_user_group(user_id, keyword)
+    return get_group_id(user_id, keyword) or create_user_group(user_id, keyword)
 
 
-def get_group(user_id, keyword):
+def get_group_id(user_id, keyword):
     c = connection.cursor()
 
     c.execute("""SELECT {groupid_col}
                  FROM {table}
                  WHERE {userid_col} = ? AND {keyword_col} = ?
-                 LIMIT 1""".format(groupid_col=groupid_col,
-                                   table=keywords_table,
-                                   userid_col=userid_col,
-                                   keyword_col=keyword_col), (user_id, keyword))
+                 LIMIT 1;""".format(groupid_col=groupid_col,
+                                    table=keywords_table,
+                                    userid_col=userid_col,
+                                    keyword_col=keyword_col), (user_id, keyword))
 
     fetch = c.fetchone()
 
@@ -175,10 +175,10 @@ def create_user_group(user_id, keyword):
     c = connection.cursor()
 
     c.execute("""INSERT INTO {table}
-                 ({userid_col}, {keyword_col}, {groupid_col}) VALUES (?, ?, ?)""".format(table=keywords_table,
-                                                                                         userid_col=userid_col,
-                                                                                         keyword_col=keyword_col,
-                                                                                         groupid_col=groupid_col),
+                 ({userid_col}, {keyword_col}, {groupid_col}) VALUES (?, ?, ?);""".format(table=keywords_table,
+                                                                                          userid_col=userid_col,
+                                                                                          keyword_col=keyword_col,
+                                                                                          groupid_col=groupid_col),
               (user_id, keyword, guid))
 
     connection.commit()
@@ -192,8 +192,8 @@ def create_group():
     guid = str(uuid.uuid4())
 
     c.execute("""INSERT INTO {table} 
-                 ({groupid_col}) VALUES (?)""".format(table=group_table,
-                                                      groupid_col=groupid_col), (guid,))
+                 ({groupid_col}) VALUES (?);""".format(table=group_table,
+                                                       groupid_col=groupid_col), (guid,))
 
     connection.commit()
 
@@ -217,9 +217,9 @@ def add_item_to_group(group_id, item_id):
 
     try:
         c.execute("""INSERT INTO {table} 
-                     ({groupid_col}, {itemid_col}) VALUES (?, ?)""".format(table=group_item_table,
-                                                                           groupid_col=groupid_col,
-                                                                           itemid_col=itemid_col), (group_id, item_id))
+                     ({groupid_col}, {itemid_col}) VALUES (?, ?);""".format(table=group_item_table,
+                                                                            groupid_col=groupid_col,
+                                                                            itemid_col=itemid_col), (group_id, item_id))
     except sqlite3.IntegrityError as e:
         return
 
@@ -230,9 +230,9 @@ def remove_item_from_group(group_id, item_id):
     c = connection.cursor()
 
     c.execute("""DELETE FROM {table}
-                 WHERE {groupid_col} = ? AND {itemid_col} = ?""".format(table=group_item_table,
-                                                                        groupid_col=groupid_col,
-                                                                        itemid_col=itemid_col), (group_id, item_id))
+                 WHERE {groupid_col} = ? AND {itemid_col} = ?;""".format(table=group_item_table,
+                                                                         groupid_col=groupid_col,
+                                                                         itemid_col=itemid_col), (group_id, item_id))
 
     connection.commit()
 
@@ -241,40 +241,15 @@ def remove_group(group_id):
     c = connection.cursor()
 
     c.execute("""DELETE FROM {table}
-                 WHERE {groupid_col} = ?""".format(table=keywords_table,
-                                                   groupid_col=groupid_col), (group_id,))
+                 WHERE {groupid_col} = ?;""".format(table=keywords_table,
+                                                    groupid_col=groupid_col), (group_id,))
 
     c.execute("""DELETE FROM {table}
-                 WHERE {groupid_col} = ?""".format(table=group_item_table,
-                                                   groupid_col=groupid_col), (group_id,))
+                 WHERE {groupid_col} = ?;""".format(table=group_item_table,
+                                                    groupid_col=groupid_col), (group_id,))
 
     c.execute("""DELETE FROM {table}
-                 WHERE {groupid_col} = ?""".format(table=group_table,
-                                                   groupid_col=groupid_col), (group_id,))
+                 WHERE {groupid_col} = ?;""".format(table=group_table,
+                                                    groupid_col=groupid_col), (group_id,))
 
     connection.commit()
-
-# query = "INSERT INTO {table} ({id_col}, {keyword_col}, {itemid_col}) VALUES (?, ?, ?)"
-
-
-# user_id = 'b1650a30-ebff-4404-953c-26fc758e1965'
-#
-# # set_keyword_for_item(user_id, 'dfs', 1000)
-# # item_group_for_keyword(user_id, 'dfs')
-# # set_user_group_name(user_id, 'dfs', 'named group')
-# # set_keyword_for_item(user_id, 'dfs', 9999)
-# group = item_group_for_keyword(user_id, 'dfs')
-#
-# print(group.name)
-# print(group.keyword)
-# print(group.items)
-
-#
-# c = connection.cursor()
-# c.execute("""SELECT * FROM {table}""".format(table=group_item_table))
-# print(c.fetchall())
-#
-# remove_keyword(user_id, 'dfs')
-# c = connection.cursor()
-# c.execute("""SELECT * FROM {table}""".format(table=group_item_table))
-# print(c.fetchall())
