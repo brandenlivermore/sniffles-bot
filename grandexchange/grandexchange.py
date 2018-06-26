@@ -19,10 +19,15 @@ class GrandExchange(object):
     def __init__(self):
         self.file_path = 'data.json'
         self.all_items_url = 'https://rsbuddy.com/exchange/summary.json'
+        self.item_names = None
+        self.name_item_mapping = None
+        self.id_item_mapping = None
+
         self.setup()
         self.jagex_grand_exchange = jagex.GrandExchange()
         self.runelite = RuneLite()
         self.dbconnection = dbconnection
+
 
     def remove_keyword(self, user_id, keyword):
         return self.dbconnection.remove_keyword(user_id, keyword)
@@ -32,7 +37,7 @@ class GrandExchange(object):
 
     def set_keyword_for_item(self, user_id, keyword, item_name):
         item_name = item_name.lower()
-
+        keyword = keyword.lower()
         if item_name not in self.name_item_mapping:
             return False, []
 
@@ -115,7 +120,7 @@ class GrandExchange(object):
         jagex_futures = self.jagex_grand_exchange.futures_for_item_ids(session, item_ids)
 
         runelite_future = self.runelite.items_future(session, item_ids)
-        runelite_items = self.runelite.items_from_future(runelite_future)
+        runelite_items = RuneLite.items_from_future(runelite_future)
         results = []
         for index, future in enumerate(jagex_futures):
             runelite_item = runelite_items[index]
@@ -139,7 +144,6 @@ class GrandExchange(object):
             fetch_items = True
 
         if fetch_items:
-            print('fetching items')
             result = requests.get(self.all_items_url)
 
             with open(self.file_path, 'w') as outfile:

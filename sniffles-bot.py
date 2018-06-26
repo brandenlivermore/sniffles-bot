@@ -12,8 +12,8 @@ environment = None
 token = None
 
 def set_environment():
-    if len(sys.argv) is not 2:
-        sys.exit('run this script with either -dev or -prod')
+    if len(sys.argv) is not 3:
+        sys.exit('you must run this passing -dev or -prod followed by the token')
 
     global environment
     global token
@@ -23,13 +23,7 @@ def set_environment():
     elif sys.argv[1] == '-prod':
         environment = prod_environment
 
-    if environment is None:
-        sys.exit('you didn\'t specify -dev or -prod')
-
-    if environment == prod_environment:
-        token = 'NDE4Njc4NjU4MTkwODAyOTQ0.DXlEow.Tm9Ru4-GKH2-X1rkA9p__8uZ8ls'
-    elif environment == dev_environment:
-        token = 'NDE5Nzc3MDA3NjU2NjMyMzIw.DX-8GQ.GHoW5mMaIGLkWGXyQgJ637Hq99c'
+    token = sys.argv[2]
 
 
 set_environment()
@@ -52,7 +46,7 @@ async def on_ready():
 async def keyword(ctx):
     if ctx.invoked_subcommand is None:
         await bot.say(
-            'You can\'t use keyword on its own. Try `.keyword add bandos "bandos chestplate"` or `.keyword remove bandos` or `.keyword name bandos "Bandos stuff"`')
+            'You can\'t use keyword on its own. Try `.keyword add bandos "bandos chestplate"` or `.keyword remove bandos` or `.keyword setname bandos "Bandos stuff"`')
 
 
 def validate_quoted_item_name(name):
@@ -70,7 +64,7 @@ async def remove(ctx, keyword: str, *, name: str):
     valid_name = validate_quoted_item_name(name)
 
     if not valid_name:
-        await bot.say('You didn\'t use this right. example: `.keyword name bullshit "bandos stuff"`')
+        await bot.say('You didn\'t use this right. example: `.keyword remove bullshit`')
         return
 
     name = name.replace('"', '')
@@ -98,13 +92,13 @@ async def delete(ctx, keyword: str):
 
 
 @keyword.command(pass_context=True)
-async def name(ctx, keyword: str, *, name: str):
+async def setname(ctx, keyword: str, *, name: str):
     user_id = ctx.message.author.id
 
     valid_name = validate_quoted_item_name(name)
 
     if not valid_name:
-        await bot.say('You didn\'t use this right. example: `.keyword name bullshit "bandos stuff"`')
+        await bot.say('You didn\'t use this right. example: `.keyword setname bullshit "bandos stuff"`')
         return
 
     name = name.replace('"', '')
@@ -121,7 +115,7 @@ async def name(ctx, keyword: str, *, name: str):
 @keyword.command(pass_context=True)
 async def add(ctx, keyword: str, *, item: str):
     user_id = ctx.message.author.id
-    pattern = re.compile('"(\s|[a-z]|\)|\(|\d|\'){3,}"')
+    pattern = re.compile('"(\s|[a-z]|[A-Z]|\)|\(|\d|\'){3,}"')
 
     match = pattern.match(item)
 
@@ -135,6 +129,7 @@ async def add(ctx, keyword: str, *, item: str):
 
     if not success:
         await bot.say('unable to find "{item}"'.format(item=item))
+        return
 
     items_str = ", ".join(items)
 
@@ -143,13 +138,8 @@ async def add(ctx, keyword: str, *, item: str):
 
 @bot.command(pass_context=True)
 async def price(ctx, *, query: str):
-    # query = ctx.message.content
-    # query.replace(command_prefix + 'price', '')
-    # query = query.strip()
     user_id = ctx.message.author.id
     group_name, results = ge.items(user_id, query)
-
-    text = ''
 
     length = len(results)
 

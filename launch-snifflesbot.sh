@@ -1,3 +1,5 @@
 #!/bin/bash
 
-python3 sniffles-bot.py -prod
+KEY=##### put key here #####
+
+python3 sniffles-bot.py -prod $KEY
