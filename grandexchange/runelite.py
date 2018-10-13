@@ -4,7 +4,7 @@ import json
 
 class RuneLiteItem(object):
     def __init__(self, item_json):
-        self.id = item_json['item']['id']
+        self.id = item_json['id']
         self.price = item_json['price']
         return
 
