@@ -1,8 +1,10 @@
 import sqlite3
 import uuid
 from db.itemgroup import ItemGroup
+import db
 
 db_file = 'sniffles-bot-db.sqlite'
+# Grand Exchange
 keywords_table = 'keywordsgroupusers'
 userid_col = 'userid'
 keyword_col = 'keyword'
@@ -14,9 +16,31 @@ group_table = 'groups'
 group_item_table = 'group_items'
 itemid_col = 'itemid'
 
+# Messages for maximum Chris trolling
+messages_table = 'messages'
+message_id_col = 'message_id'
+member_id_col = 'member_id'
+content_col = 'content'
+url_col = 'url'
+date_col = 'date'
+
 connection = sqlite3.connect(db_file)
 connection.execute('pragma foreign_keys=ON')
 c = connection.cursor()
+
+# Messages table
+c.execute("""CREATE TABLE IF NOT EXISTS {table} (
+                {message_id_col} INT NOT NULL, 
+                {member_id_col} INT NOT NULL,
+                {content_col} TEXT NOT NULL,
+                {url_col} TEXT NOT NULL,
+                {date_col} INT NOT NULL
+            );""".format(table=messages_table,
+                         message_id_col=message_id_col,
+                         member_id_col=member_id_col,
+                         content_col=content_col,
+                         url_col=url_col,
+                         date_col=date_col))
 
 # User + keyword to group
 c.execute("""CREATE TABLE IF NOT EXISTS {table} (
@@ -253,3 +277,48 @@ def remove_group(group_id):
                                                     groupid_col=groupid_col), (group_id,))
 
     connection.commit()
+
+
+def insert_messages(messages):
+    delete_messages()
+
+    c = connection.cursor()
+
+    for message_entry in messages:
+        c.execute("""INSERT INTO {table}
+                     ({message_id_col}, {member_id_col}, {content_col}, {url_col}, {date_col}) VALUES (?, ?, ?, ?, ?);""".format(table=messages_table,
+                                                                                                                                               message_id_col=message_id_col,
+                                                                                                                                               member_id_col=member_id_col,
+                                                                                                                                               content_col=content_col,
+                                                                                                                                               url_col=url_col,
+                                                                                                                                               date_col=date_col),
+                  (message_entry.message_id, message_entry.member_id, message_entry.content, message_entry.url, message_entry.date))
+
+    connection.commit()
+
+def delete_messages():
+    c = connection.cursor()
+
+    c.execute("""DELETE FROM {table}""".format(table=messages_table))
+    connection.commit()
+
+def messages_for_member(member_id):
+    c = connection.cursor()
+    c.execute("""SELECT {message_id_col}, {member_id_col}, {content_col}, {url_col}, {date_col}
+                 FROM {table}
+                 WHERE {member_id_col} = ?""".format(table=messages_table,
+                                                     message_id_col=message_id_col,
+                                                     member_id_col=member_id_col,
+                                                     content_col=content_col,
+                                                     url_col=url_col,
+                                                     date_col=date_col), (member_id,))
+
+    results = c.fetchall()
+
+    if len(results) is 0:
+        return None
+
+    return list(map(message_result_to_message_entry, results))
+
+def message_result_to_message_entry(result):
+    return db.MessageEntry(result[0], result[1], result[2], result[3], result[4])

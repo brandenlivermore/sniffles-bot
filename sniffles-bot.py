@@ -2,8 +2,10 @@ import discord
 from discord.ext import commands
 from grandexchange import GrandExchange
 from numberformatter import human_format
+from messagetrolling import MessageTroller
 import sys
 import re
+from datetime import datetime
 
 dev_environment = 'dev'
 prod_environment = 'prod'
@@ -36,16 +38,13 @@ elif environment == prod_environment:
 bot = commands.Bot(command_prefix=command_prefix, description='BigBoyBot D: :P')
 ge = GrandExchange()
 
-
-@bot.event
-async def on_ready():
-    await bot.change_presence(game=discord.Game(name='cat'))
-
+chris_icon_url = 'https://scontent-sea1-1.xx.fbcdn.net/v/t1.0-9/p960x960/34054290_2145152178834520_6807100509313302528_o.jpg?_nc_cat=109&_nc_sid=85a577&_nc_ohc=lKlMyo09c-cAX-lOZgv&_nc_ht=scontent-sea1-1.xx&_nc_tp=6&oh=a42c17714b2ed818299c7c5753691e55&oe=5EF56B65'
 
 @bot.group(pass_context=True)
 async def keyword(ctx):
+    channel = ctx.message.channel
     if ctx.invoked_subcommand is None:
-        await bot.say(
+        await channel.send(
             'You can\'t use keyword on its own. Try `.keyword add bandos "bandos chestplate"` or `.keyword remove bandos` or `.keyword setname bandos "Bandos stuff"`')
 
 
@@ -63,8 +62,10 @@ async def remove(ctx, keyword: str, *, name: str):
 
     valid_name = validate_quoted_item_name(name)
 
+    channel = ctx.message.channel
+
     if not valid_name:
-        await bot.say('You didn\'t use this right. example: `.keyword remove bullshit`')
+        await channel.send('You didn\'t use this right. example: `.keyword remove bullshit`')
         return
 
     name = name.replace('"', '')
@@ -72,10 +73,10 @@ async def remove(ctx, keyword: str, *, name: str):
     success = ge.remove_keyword(user_id, keyword)
 
     if success:
-        await bot.say('removed "{name}" from {keyword}'.format(keyword=keyword,
+        await channel.send('removed "{name}" from {keyword}'.format(keyword=keyword,
                                                                name=name))
     else:
-        await bot.say('"{name}" not found or keyword {keyword} doesn\'t exist'.format(keyword=keyword,
+        await channel.send('"{name}" not found or keyword {keyword} doesn\'t exist'.format(keyword=keyword,
                                                                                       name=name))
 
 
@@ -85,10 +86,12 @@ async def delete(ctx, keyword: str):
 
     success = ge.remove_keyword(user_id, keyword)
 
+    channel = ctx.message.channel
+
     if success:
-        await bot.say('Successfully removed keyword {keyword}'.format(keyword=keyword))
+        await channel.send('Successfully removed keyword {keyword}'.format(keyword=keyword))
     else:
-        await bot.say('Could not remove unknown keyword {keyword}'.format(keyword=keyword))
+        await channel.send('Could not remove unknown keyword {keyword}'.format(keyword=keyword))
 
 
 @keyword.command(pass_context=True)
@@ -97,8 +100,10 @@ async def setname(ctx, keyword: str, *, name: str):
 
     valid_name = validate_quoted_item_name(name)
 
+    channel = ctx.channel
+
     if not valid_name:
-        await bot.say('You didn\'t use this right. example: `.keyword setname bullshit "bandos stuff"`')
+        await channel.send('You didn\'t use this right. example: `.keyword setname bullshit "bandos stuff"`')
         return
 
     name = name.replace('"', '')
@@ -106,10 +111,10 @@ async def setname(ctx, keyword: str, *, name: str):
     success = ge.set_name_for_keyword(user_id, keyword, name)
 
     if success:
-        await bot.say('keyword group {keyword} is now named "{name}"'.format(keyword=keyword,
+        await channel.send('keyword group {keyword} is now named "{name}"'.format(keyword=keyword,
                                                                              name=name))
     else:
-        await bot.say('keyword {keyword} not found'.format(keyword=keyword))
+        await channel.send('keyword {keyword} not found'.format(keyword=keyword))
 
 
 @keyword.command(pass_context=True)
@@ -119,8 +124,10 @@ async def add(ctx, keyword: str, *, item: str):
 
     match = pattern.match(item)
 
+    channel = ctx.channel
+
     if not match or match.group() != item:
-        await bot.say('You didn\'t use this right. example: `.keyword add bullshit "bandos godsword"`')
+        await channel.send('You didn\'t use this right. example: `.keyword add bullshit "bandos godsword"`')
         return
 
     item = item.replace('"', '')
@@ -128,13 +135,51 @@ async def add(ctx, keyword: str, *, item: str):
     success, items = ge.set_keyword_for_item(user_id, keyword, item)
 
     if not success:
-        await bot.say('unable to find "{item}"'.format(item=item))
+        await channel.send('unable to find "{item}"'.format(item=item))
         return
 
     items_str = ", ".join(items)
 
-    await bot.say('{keyword} now contains '.format(keyword=keyword) + items_str)
+    await channel.send('{keyword} now contains '.format(keyword=keyword) + items_str)
 
+
+@bot.command(pass_context=True)
+async def update_messages(ctx):
+    await ctx.channel.send("Starting message update")
+
+    message_troller = MessageTroller()
+    messages = await ctx.channel.history(limit=None).flatten()
+
+    message_troller.store_messages(messages)
+    await ctx.channel.send("Finished updating messages")
+
+@bot.command(pass_context=True)
+async def chris(ctx):
+    await ctx.channel.trigger_typing()
+
+    message_troller = MessageTroller()
+
+    message = message_troller.random_chris_message()
+
+    if message is None:
+        await ctx.channel.send("Unable to find a message :(")
+        return
+
+    embed = discord.Embed(
+        title="what did he say this time???",
+        description=message.content,
+        color=0xFF5733)
+    embed.set_author(
+        name="Chris",
+        icon_url = chris_icon_url
+    )
+
+    date = datetime.fromtimestamp(message.date)
+    date_string = date.strftime("%B %-d, %Y")
+    embed.set_footer(text=date_string)
+
+    embed.add_field(name="context", value=message.url)
+    await ctx.channel.send(embed=embed)
 
 @bot.command(pass_context=True)
 async def price(ctx, *, query: str):
@@ -168,6 +213,6 @@ async def price(ctx, *, query: str):
                                                                                                  result.alch_price)),
                         inline=False)
 
-    await bot.say(embed=embed)
+    await ctx.channel.send(embed=embed)
 
 bot.run(token)
