@@ -62,7 +62,7 @@ async def remove(ctx, keyword: str, *, name: str):
 
     valid_name = validate_quoted_item_name(name)
 
-    channel = ctx.message.channel
+    channel = ctx.channel
 
     if not valid_name:
         await channel.send('You didn\'t use this right. example: `.keyword remove bullshit`')
@@ -153,22 +153,21 @@ async def update_messages(ctx):
     message_troller.store_messages(messages)
     await ctx.channel.send("Finished updating messages")
 
-@bot.command(pass_context=True)
-async def chris(ctx):
+async def chris_command(ctx, query):
     await ctx.channel.trigger_typing()
 
     message_troller = MessageTroller()
 
-    message = message_troller.random_chris_message()
+    message = message_troller.random_chris_message(query)
 
     if message is None:
         await ctx.channel.send("Unable to find a message :(")
         return
 
     embed = discord.Embed(
-        title="what did he say this time???",
-        description=message.content,
-        color=0xFF5733)
+        description="**[" + message.content + "](" + message.url + ")**",
+        color=0xFF5733
+    )
     embed.set_author(
         name="Chris",
         icon_url = chris_icon_url
@@ -178,11 +177,28 @@ async def chris(ctx):
     date_string = date.strftime("%B %-d, %Y")
     embed.set_footer(text=date_string)
 
-    embed.add_field(name="context", value=message.url)
     await ctx.channel.send(embed=embed)
 
+@bot.group(pass_context=True)
+async def chris(ctx):
+    if ctx.invoked_subcommand is None:
+        await chris_command(ctx, None)
+
+@bot.group(pass_context=True)
+async def Chris(ctx):
+    if ctx.invoked_subcommand is None:
+        await chris_command(ctx, None)
+
+@Chris.command(pass_context=True)
+async def search(ctx, query: str):
+    await chris_command(ctx, query)
+
+@chris.command(pass_context=True)
+async def search(ctx, query: str):
+    await chris_command(ctx, query)
+
 @bot.command(pass_context=True)
-async def price(ctx, *, query: str):
+async def price(ctx, query: str):
     user_id = ctx.message.author.id
     group_name, results = ge.items(user_id, query)
 

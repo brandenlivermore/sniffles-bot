@@ -302,16 +302,22 @@ def delete_messages():
     c.execute("""DELETE FROM {table}""".format(table=messages_table))
     connection.commit()
 
-def messages_for_member(member_id):
+def messages_for_member(member_id, search_term):
+    if search_term is None:
+        search_term = "%"
+    else:
+        search_term = "%" + search_term + "%"
     c = connection.cursor()
+
     c.execute("""SELECT {message_id_col}, {member_id_col}, {content_col}, {url_col}, {date_col}
                  FROM {table}
-                 WHERE {member_id_col} = ?""".format(table=messages_table,
+                 WHERE ({member_id_col} = ?) 
+                 AND ({content_col} LIKE ?)""".format(table=messages_table,
                                                      message_id_col=message_id_col,
                                                      member_id_col=member_id_col,
                                                      content_col=content_col,
                                                      url_col=url_col,
-                                                     date_col=date_col), (member_id,))
+                                                     date_col=date_col), (member_id, search_term))
 
     results = c.fetchall()
 

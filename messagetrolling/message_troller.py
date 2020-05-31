@@ -6,13 +6,12 @@ chris_id = 319299307960270858
 
 class MessageTroller(object):
     def store_messages(self, messages):
-        if (self.random_chris_message() is None):
-            message_entries = list(map(message_to_message_entry, messages))
+        message_entries = list(map(message_to_message_entry, messages))
 
-            dbconnection.insert_messages(message_entries)
+        dbconnection.insert_messages(message_entries)
 
-    def random_chris_message(self):
-        message_entries = dbconnection.messages_for_member(chris_id)
+    def random_chris_message(self, query):
+        message_entries = dbconnection.messages_for_member(chris_id, query)
 
         if message_entries is None:
             return None
